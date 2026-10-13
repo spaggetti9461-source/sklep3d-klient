@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sklep 3D</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background: #f4f4f9; color: #333; }
+        h1, h2 { color: #2c3e50; }
+        .product { background: white; padding: 15px; margin-bottom: 10px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; }
+        button { background: #3498db; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; }
+        button:hover { background: #2980b9; }
+        #cart { background: white; padding: 15px; margin-top: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        input { padding: 10px; width: 100%; box-sizing: border-box; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 5px; }
+    </style>
+</head>
+<body>
+
+    <h1>Sklep 3D – Wydruki na zamówienie</h1>
+
+    <div id="products">
+        <div class="product">
+            <div>
+                <h3>Brelok 3D</h3>
+                <p>Cena: 15 zł</p>
+            </div>
+            <button onclick="dodajDoKoszyka('Brelok 3D', 15)">Dodaj do koszyka</button>
+        </div>
+        <div class="product">
+            <div>
+                <h3>Figurka 3D</h3>
+                <p>Cena: 45 zł</p>
+            </div>
+            <button onclick="dodajDoKoszyka('Figurka 3D', 45)">Dodaj do koszyka</button>
+        </div>
+    </div>
+
+    <div id="cart">
+        <h2>Twój Koszyk</h2>
+        <ul id="cart-items">Brak produktów w koszyku</ul>
+        <p><strong>Suma: <span id="total-price">0</span> zł</strong></p>
+        
+        <h3>Twoje dane</h3>
+        <input type="text" id="customer-name" placeholder="Wpisz swoje imię">
+        <button onclick="zlozZamowienie()" style="background: #27ae60; width: 100%;">Złóż zamówienie</button>
+    </div>
+
+    <script>
+        let koszyk = [];
+        let suma = 0;
+
+        function dodajDoKoszyka(nazwa, cena) {
+            koszyk.push({ nazwa, cena });
+            suma += cena;
+            aktualizujKoszyk();
+        }
+
+        function aktualizujKoszyk() {
+            const lista = document.getElementById('cart-items');
+            const totalElem = document.getElementById('total-price');
+            lista.innerHTML = '';
+            
+            if (koszyk.length === 0) {
+                lista.innerHTML = '<li>Brak produktów w koszyku</li>';
+            } else {
+                koszyk.forEach(item => {
+                    const li = document.createElement('li');
+                    li.textContent = `${item.nazwa} - ${item.cena} zł`;
+                    lista.appendChild(li);
+                });
+            }
+            totalElem.textContent = suma;
+        }
+
+        function zlozZamowienie() {
+            const imie = document.getElementById('customer-name').value.trim();
+            if (!imie) {
+                alert('Proszę wpisać swoje imię!');
+                return;
+            }
+            if (koszyk.length === 0) {
+                alert('Koszyk jest pusty!');
+                return;
+            }
+
+            const opisZamowienia = koszyk.map(i => `${i.nazwa} (${i.cena} zł)`).join(', ');
+
+            // Automatyczne wysyłanie powiadomienia w tle z Twoim kluczem
+            fetch('https://api.web3forms.com/submit', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    access_key: 'Ccdffb10-bccf-497c-beea-3034703ccee1', 
+                    subject: `Nowe zamówienie od: ${imie}`,
+                    from_name: imie,
+                    message: `Klient: ${imie}\nZamówienie: ${opisZamowienia}\nSuma: ${suma} zł`
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Zamówienie zostało złożone pomyślnie! Sprzedawca je otrzymał.');
+                    koszyk = [];
+                    suma = 0;
+                    document.getElementById('customer-name').value = '';
+                    aktualizujKoszyk();
+                } else {
+                    alert('Wystąpił błąd podczas składania zamówienia.');
+                }
+            })
+            .catch(error => {
+                alert('Błąd połączenia z siecią.');
+            });
+        }
+    </script>
+</body>
+</html>
