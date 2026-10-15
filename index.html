@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="pl" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Print Studio</title>
+    <style>
+        :root {
+            --bg-gradient: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            --glass-bg: rgba(255, 255, 255, 0.75);
+            --glass-border: rgba(255, 255, 255, 0.9);
+            --glass-shadow: 0 20px 40px 0 rgba(0, 0, 0, 0.08);
+            --text-main: #1d1d1f;
+            --text-muted: #86868b;
+            --primary: #0071e3;
+            --primary-hover: #0077ed;
+            --accent-green: #34c759;
+            --accent-green-hover: #30b154;
+            --remove-bg: rgba(255, 59, 48, 0.12);
+            --remove-color: #ff3b30;
+            --input-bg: rgba(255, 255, 255, 0.85);
+            --ai-bg: rgba(0, 113, 227, 0.04);
+        }
+
+        [data-theme="dark"] {
+            --bg-gradient: linear-gradient(135deg, #0b0f19 0%, #1a1c29 100%);
+            --glass-bg: rgba(30, 32, 44, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.12);
+            --glass-shadow: 0 20px 40px 0 rgba(0, 0, 0, 0.5);
+            --text-main: #f5f5f7;
+            --text-muted: #a1a1a6;
+            --primary: #2997ff;
+            --primary-hover: #47a6ff;
+            --accent-green: #32d74b;
+            --accent-green-hover: #28cd41;
+            --remove-bg: rgba(255, 69, 58, 0.2);
+            --remove-color: #ff453a;
+            --input-bg: rgba(20, 22, 30, 0.8);
+            --ai-bg: rgba(41, 151, 255, 0.08);
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+        }
+
+        body {
+            background: var(--bg-gradient);
+            background-attachment: fixed;
+            color: var(--text-main);
+            margin: 0;
+            padding: 20px 16px 40px 16px;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 460px;
+        }
+
+        .glass-panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            border: 1px solid var(--glass-border);
+            box-shadow: var(--glass-shadow);
+            border-radius: 24px;
+            transition: transform 0.2s ease, background 0.3s ease;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 18px 22px;
+        }
+
+        .header-title h1 {
+            font-size: 22px;
+            font-weight: 700;
+            letter-spacing: -0.4px;
+            margin: 0 0 2px 0;
+            color: var(--text-main);
+        }
+
+        .subtitle {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin: 0;
+            font-weight: 400;
+        }
+
+        .btn-theme {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            color: var(--text-main);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: var(--glass-shadow);
+            transition: transform 0.2s;
+        }
+
+        .btn-theme:active {
+            transform: scale(0.9);
+        }
+
+        .ai-advisor {
+            padding: 18px;
+            margin-bottom: 20px;
+            background: var(--ai-bg);
+            border: 1px solid var(--primary);
+        }
+
+        .ai-title {
+            font-size: 15px;
+            font-weight: 600;
+            margin: 0 0 6px 0;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .ai-text {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+            line-height: 1.4;
+        }
+
+        .ai-btns {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .btn-ai-choice {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            color: var(--text-main);
+            padding: 8px 14px;
+            border-radius: 12px;
+            font-size: 13px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .btn-ai-choice:active {
+            transform: scale(0.96);
+        }
+
+        .btn-ai-choice:hover {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .category-filter {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 16px;
+            background: var(--glass-bg);
+            padding: 4px;
+            border-radius: 16px;
+            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(20px);
+        }
+
+        .btn-category {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            padding: 10px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.25s ease;
+        }
+
+        .btn-category.active {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 4px 12px rgba(0, 113, 227, 0.3);
+        }
+
+        .product-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .product-card {
+            padding: 16px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .product-card.hidden {
+            display: none !important;
+        }
+
+        .product-info h3 {
+            margin: 0 0 4px 0;
+            font-size: 15px;
+            font-weight: 600;
+            letter-spacing: -0.2px;
+        }
+
+        .product-price {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-muted);
+        }
+
+        .btn-add {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 14px;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 113, 227, 0.2);
+            transition: transform 0.15s;
+        }
+
+        .btn-add:active {
+            transform: scale(0.93);
+        }
+
+        .cart-section {
+            padding: 22px;
+        }
+
+        .cart-header h2 {
+            font-size: 17px;
+            margin: 0 0 12px 0;
+            font-weight: 600;
+            border-bottom: 1px solid var(--glass-border);
+            padding-bottom: 10px;
+            letter-spacing: -0.3px;
+        }
+
+        .cart-items {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 16px 0;
+            max-height: 220px;
+            overflow-y: auto;
+        }
+
+        .cart-items li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            font-size: 13px;
+            border-bottom: 1px dashed var(--glass-border);
+        }
+
+        .qty-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-qty {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            color: var(--text-main);
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            font-weight: bold;
+            font-size: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-remove {
+            background: var(--remove-bg);
+            color: var(--remove-color);
+            border: none;
+            border-radius: 8px;
+            padding: 4px 8px;
+            font-size: 11px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-left: 4px;
+        }
+
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            padding-top: 10px;
+            border-top: 1px solid var(--glass-border);
+        }
+
+        input {
+            width: 100%;
+            padding: 14px 16px;
+            background: var(--input-bg);
+            color: var(--text-main);
+            border: 1px solid var(--glass-border);
+            border-radius: 14px;
+            font-size: 14px;
+            margin-bottom: 12px;
+            outline: none;
+            backdrop-filter: blur(10px);
+            transition: border-color 0.2s;
+        }
+
+        input:focus {
+            border-color: var(--primary);
+        }
+
+        .btn-submit {
+            width: 100%;
+            background: var(--accent-green);
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 16px;
+            font-weight: 600;
+            font-size: 15px;
+            cursor: pointer;
+            box-shadow: 0 6px 20px rgba(52, 199, 89, 0.3);
+            transition: transform 0.15s;
+        }
+
+        .btn-submit:active {
+            transform: scale(0.97);
+        }
+
+        .empty-cart-msg {
+            color: var(--text-muted);
+            text-align: center;
+            font-size: 13px;
+            margin: 12px 0;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header class="glass-panel">
+            <div class="header-title">
+                <h1>3D Print Studio</h1>
+                <p class="subtitle">Wydruki 3D w jakości Premium</p>
+            </div>
+            <button class="btn-theme" type="button" onclick="przelaczMotyw()" id="theme-btn">🌙</button>
+        </header>
+
+        <div class="ai-advisor glass-panel" id="ai-box">
+            <div class="ai-title">✨ Asystent AI</div>
+            <div class="ai-text" id="ai-response">W czym mogę pomóc? Wybierz kategorię, a podpowiem idealny wybór:</div>
+            <div class="ai-btns" id="ai-actions">
+                <button class="btn-ai-choice" type="button" onclick="aiKrok('telefony')">Telefony 📱</button>
+                <button class="btn-ai-choice" type="button" onclick="aiKrok('zabawki')">Zabawki antystresowe 🧸</button>
+            </div>
+        </div>
+
+        <div class="category-filter">
+            <button class="btn-category active" type="button" onclick="filtrujKategorie('wszystkie', this)">Wszystkie</button>
+            <button class="btn-category" type="button" onclick="filtrujKategorie('telefony', this)">Telefony 📱</button>
+            <button class="btn-category" type="button" onclick="filtrujKategorie('zabawki', this)">Zabawki 🧸</button>
+        </div>
+
+        <div class="product-list">
+            <div class="product-card glass-panel" data-category="telefony">
+                <div class="product-info">
+                    <h3>iPhone 13</h3>
+                    <div class="product-price">15 zł</div>
+                </div>
+                <button class="btn-add" type="button" onclick="dodajDoKoszyka('iPhone 13', 15)">Dodaj</button>
+            </div>
+
+            <div class="product-card glass-panel" data-category="telefony">
+                <div class="product-info">
+                    <h3>iPhone 16 Plus</h3>
+                    <div class="product-price">15 zł</div>
+                </div>
+                <button class="btn-add" type="button" onclick="dodajDoKoszyka('iPhone 16 Plus', 15)">Dodaj</button>
+            </div>
+
+            <div class="product-card glass-panel" data-category="telefony">
+                <div class="product-info">
+                    <h3>iPhone 17 Pro Max</h3>
+                    <div class="product-price">20 zł</div>
+                </div>
+                <button class="btn-add" type="button" onclick="dodajDoKoszyka('iPhone 17 Pro Max', 20)">Dodaj</button>
+            </div>
+
+            <div class="product-card glass-panel" data-category="telefony">
+                <div class="product-info">
+                    <h3>iPhone 17 Pro Max Camera Bump</h3>
+                    <div class="product-price">25 zł</div>
+                </div>
+                <button class="btn-add" type="button" onclick="dodajDoKoszyka('iPhone 17 Pro Max Camera Bump', 25)">Dodaj</button>
+            </div>
+
+            <div class="product-card glass-panel" data-category="telefony">
+                <div class="product-info">
+                    <h3>iPhone 17 Pro Max Full</h3>
+                    <div class="product-price">30 zł</div>
+                </div>
+                <button class="btn-add" type="button" onclick="dodajDoKoszyka('iPhone 17 Pro Max Full', 30)">Dodaj</button>
+            </div>
+
+            <div class="product-card glass-panel" data-category="telefony">
+                <div class="product-info">
+                    <h3>iPhone duo</h3>
+                    <div class="product-price">35 zł</div>
+                </div>
+                <button class="btn-add" type="button" onclick="dodajDoKoszyka('iPhone duo', 35)">Dodaj</button>
+            </div>
+
+            <div class="product-card glass-panel" data-category="telefony">
+                <div class="product-info">
+                    <h3>iPhone duo camera bump</h3>
+                    <div class="product-price">39 zł</div>
+                </div>
+                <button class="btn-add" type="button" onclick="dodajDoKoszyka('iPhone duo camera bump', 39)">Dodaj</button>
+            </div>
+
+            <div class="product-card glass-panel" data-category="zabawki">
+                <div class="product-info">
+                    <h3>Kostka NeeDoh (pomarańczowa)</h3>
+                    <div class="product-price">25 zł</div>
+                </div>
+                <button class="btn-add" type="button" onclick="dodajDoKoszyka('Kostka NeeDoh (pomarańczowa)', 25)">Dodaj</button>
+            </div>
+
+            <div class="product-card glass-panel" data-category="zabawki">
+                <div class="product-info">
+                    <h3>Gniotek masło (pomarańczowy)</h3>
+                    <div class="product-price">26 zł</div>
+                </div>
+                <button class="btn-add" type="button" onclick="dodajDoKoszyka('Gniotek masło (pomarańczowy)', 26)">Dodaj</button>
+            </div>
+        </div>
+
+        <div class="cart-section glass-panel">
+            <div class="cart-header">
+                <h2>Twój Koszyk</h2>
+            </div>
+
+            <ul id="cart-items" class="cart-items">
+                <div class="empty-cart-msg">Koszyk jest pusty</div>
+            </ul>
+
+            <div class="total-row">
+                <span>Razem:</span>
+                <span><span id="total-price">0</span> zł</span>
+            </div>
+
+            <form id="order-form" onsubmit="return wyslijZamowienie(event)">
+                <input type="hidden" name="access_key" value="ccdffb10-bccf-497c-beea-3034703ccee1">
+                <input type="hidden" name="subject" value="Nowe zamówienie ze sklepu 3D">
+                <input type="hidden" id="form-zamowienie" name="zamowienie" value="">
+                <input type="hidden" id="form-suma" name="suma_total" value="0 zł">
+
+                <input type="text" id="kontakt-input" name="kontakt" placeholder="Twoje imię / nr telefonu / e-mail" required>
+                <button type="submit" class="btn-submit">Złóż zamówienie</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let koszyk = [];
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+            const html = document.documentElement;
+            const btn = document.getElementById('theme-btn');
+            
+            if (prefersDark) {
+                html.setAttribute('data-theme', 'dark');
+                if (btn) btn.textContent = '☀️';
+            } else {
+                html.setAttribute('data-theme', 'light');
+                if (btn) btn.textContent = '🌙';
+            }
+        });
+
+        function przelaczMotyw() {
+            const html = document.documentElement;
+            const btn = document.getElementById('theme-btn');
+            const aktualnyMotyw = html.getAttribute('data-theme');
+            
+            if (aktualnyMotyw === 'dark') {
+                html.setAttribute('data-theme', 'light');
+                btn.textContent = '🌙';
+            } else {
+                html.setAttribute('data-theme', 'dark');
+                btn.textContent = '☀️';
+            }
+        }
+
+        function filtrujKategorie(kat, przycisk) {
+            document.querySelectorAll('.btn-category').forEach(b => b.classList.remove('active'));
+            przycisk.classList.add('active');
+
+            const produkty = document.querySelectorAll('.product-card');
+            produkty.forEach(p => {
+                if (kat === 'wszystkie' || p.getAttribute('data-category') === kat) {
+                    p.classList.remove('hidden');
+                } else {
+                    p.classList.add('hidden');
+                }
+            });
+        }
+
+        function aiKrok(kategoria) {
+            const tekst = document.getElementById('ai-response');
+            const akcje = document.getElementById('ai-actions');
+
+            if (kategoria === 'telefony') {
+                tekst.textContent = "Wybierz model:";
+                akcje.innerHTML = `
+                    <button class="btn-ai-choice" type="button" onclick="dodajDoKoszyka('iPhone 13', 15); aiReset()">iPhone 13 (15 zł)</button>
+                    <button class="btn-ai-choice" type="button" onclick="dodajDoKoszyka('iPhone 16 Plus', 15); aiReset()">iPhone 16 Plus (15 zł)</button>
+                    <button class="btn-ai-choice" type="button" onclick="dodajDoKoszyka('iPhone 17 Pro Max Full', 30); aiReset()">17 Pro Max Full (30 zł)</button>
+                    <button class="btn-ai-choice" type="button" onclick="aiReset()">Wróć</button>
+                `;
+            } else if (kategoria === 'zabawki') {
+                tekst.textContent = "Wybierz zabawkę antystresową:";
+                akcje.innerHTML = `
+                    <button class="btn-ai-choice" type="button" onclick="dodajDoKoszyka('Kostka NeeDoh (pomarańczowa)', 25); aiReset()">Kostka NeeDoh (25 zł)</button>
+                    <button class="btn-ai-choice" type="button" onclick="dodajDoKoszyka('Gniotek masło (pomarańczowy)', 26); aiReset()">Gniotek Masło (26 zł)</button>
+                    <button class="btn-ai-choice" type="button" onclick="aiReset()">Wróć</button>
+                `;
+            }
+        }
+
+        function aiReset() {
+            const tekst = document.getElementById('ai-response');
+            const akcje = document.getElementById('ai-actions');
+            tekst.textContent = "W czym mogę pomóc? Wybierz kategorię, a podpowiem idealny wybór:";
+            akcje.innerHTML = `
+                <button class="btn-ai-choice" type="button" onclick="aiKrok('telefony')">Telefony 📱</button>
+                <button class="btn-ai-choice" type="button" onclick="aiKrok('zabawki')">Zabawki antystresowe 🧸</button>
+            `;
+        }
+
+        function dodajDoKoszyka(nazwa, cena) {
+            const istniejacy = koszyk.find(item => item.nazwa === nazwa);
+            if (istniejacy) {
+                istniejacy.ilosc++;
+            } else {
+                koszyk.push({ nazwa, cena, ilosc: 1 });
+            }
+            aktualizujKoszyk();
+        }
+
+        function zmienIlosc(index, zmiana) {
+            koszyk[index].ilosc += zmiana;
+            if (koszyk[index].ilosc <= 0) {
+                koszyk.splice(index, 1);
+            }
+            aktualizujKoszyk();
+        }
+
+        function aktualizujKoszyk() {
+            const lista = document.getElementById('cart-items');
+            const totalElem = document.getElementById('total-price');
+            let suma = 0;
+
+            lista.innerHTML = '';
+
+            if (koszyk.length === 0) {
+                lista.innerHTML = '<div class="empty-cart-msg">Koszyk jest pusty</div>';
+            } else {
+                koszyk.forEach((item, index) => {
+                    suma += item.cena * item.ilosc;
+                    const li = document.createElement('li');
+                    li.innerHTML = `
+                        <span>${item.nazwa} (${item.cena} zł)</span>
+                        <div class="qty-controls">
+                            <button type="button" class="btn-qty" onclick="zmienIlosc(${index}, -1)">-</button>
+                            <span>${item.ilosc}</span>
+                            <button type="button" class="btn-qty" onclick="zmienIlosc(${index}, 1)">+</button>
+                            <button type="button" class="btn-remove" onclick="zmienIlosc(${index}, -999)">✕</button>
+                        </div>
+                    `;
+                    lista.appendChild(li);
+                });
+            }
+
+            totalElem.textContent = suma;
+            const opisZamowienia = koszyk.map(i => `${i.nazwa} x${i.ilosc} (${i.cena * i.ilosc} zł)`).join(', ');
+            document.getElementById('form-zamowienie').value = opisZamowienia;
+            document.getElementById('form-suma').value = suma + ' zł';
+        }
+
+        async function wyslijZamowienie(event) {
+            event.preventDefault();
+
+            if (koszyk.length === 0) {
+                alert('Dodaj przynajmniej jeden produkt do koszyka!');
+                return false;
+            }
+
+            const kontaktInput = document.getElementById('kontakt-input');
+            const tekst = kontaktInput.value.trim().toLowerCase();
+
+            const wulgaryzmy = ['kurw', 'chuj', 'pizd', 'jeb', 'pierd', 'cip', 'huj', 'skurw', 'siusiak', 'cipa', 'fujara', 'kretyn', 'debil'];
+            for (let w of wulgaryzmy) {
+                if (tekst.includes(w)) {
+                    alert('Wykryto niedozwolone słowo! Zamówienie zostało zablokowane.');
+                    return false;
+                }
+            }
+
+            if (tekst.length < 3 || /^(.)\1+$/.test(tekst) \vert{}\vert{} /^[q1]+$/.test(tekst)) {
+                alert('Podaj poprawne dane kontaktowe.');
+                return false;
+            }
+
+            const form = event.target;
+            const formData = new FormData(form);
+            const submitBtn = form.querySelector('.btn-submit');
+            
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Wysyłanie...';
+
+            try {
+                const response = await fetch('https://api.web3forms.com/submit', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    alert('✅ Zamówienie zostało wysłane pomyślnie!');
+                    koszyk = [];
+                    aktualizujKoszyk();
+                    form.reset();
+                    aiReset();
+                } else {
+                    alert('Wystąpił błąd. Spróbuj ponownie.');
+                }
+            } catch (error) {
+                alert('Błąd połączenia.');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Złóż zamówienie';
+            }
+
+            return false;
+        }
+    </script>
+</body>
+</html>
