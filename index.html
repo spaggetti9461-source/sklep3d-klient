@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Print Studio - Liquid Glass Edition</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #0b0f19;
+            color: #f8fafc;
+            margin: 0;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .container {
+            width: 100%;
+            max-width: 480px;
+        }
+        
+        /* Nagłówek sklepu */
+        .header-card {
+            background: #111827;
+            padding: 16px;
+            border-radius: 20px;
+            border: 1px solid #1f2937;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 14px;
+        }
+        .header-info { display: flex; align-items: center; gap: 12px; }
+        
+        /* Logo sześcianu w stylu z obrazka */
+        .logo-box {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+        .logo-box svg {
+            width: 26px;
+            height: 26px;
+            stroke: white;
+            fill: none;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .header-title h1 { margin: 0; font-size: 16px; color: #fff; font-weight: 700; }
+        .header-title p { margin: 2px 0 0; font-size: 12px; color: #9ca3af; }
+        .sun-icon { font-size: 18px; }
+
+        /* Asystent AI box */
+        .ai-card {
+            background: #111827;
+            padding: 14px 16px;
+            border-radius: 20px;
+            border: 1px solid #1f2937;
+            margin-bottom: 14px;
+        }
+        .ai-title { font-size: 13px; color: #60a5fa; margin: 0 0 4px 0; font-weight: 600; }
+        .ai-desc { font-size: 12px; color: #9ca3af; margin: 0 0 10px 0; }
+        .ai-tags { display: flex; gap: 8px; }
+        .ai-tag {
+            background: #0b0f19;
+            border: 1px solid #374151;
+            padding: 6px 12px;
+            border-radius: 16px;
+            font-size: 12px;
+            color: #e5e7eb;
+        }
+
+        /* Pasek filtrowania */
+        .filter-bar {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 14px;
+            overflow-x: auto;
+            padding-bottom: 4px;
+        }
+        .filter-btn {
+            background: #111827;
+            border: 1px solid #1f2937;
+            color: #9ca3af;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        .filter-btn.active {
+            background: #3b82f6;
+            color: white;
+            border-color: #3b82f6;
+        }
+
+        /* Lista produktów */
+        .products-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 24px;
+        }
+        .product-card {
+            background: #111827;
+            padding: 16px 20px;
+            border-radius: 24px;
+            border: 1px solid #1f2937;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .product-info h3 { margin: 0 0 4px 0; font-size: 15px; color: #f3f4f6; font-weight: 600; }
+        .product-info p { margin: 0; font-size: 13px; color: #9ca3af; }
+        .btn-add {
+            background-color: #3b82f6;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            font-size: 13px;
+            font-weight: 600;
+            border-radius: 20px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- Nagłówek z logo 3D -->
+        <div class="header-card">
+            <div class="header-info">
+                <div class="logo-box">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                        <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+                        <line x1="12" y1="22.08" x2="12" y2="12"></line>
+                    </svg>
+                </div>
+                <div class="header-title">
+                    <h1>3D Print Studio</h1>
+                    <p>Wydruki 3D Liquid Glass Premium</p>
+                </div>
+            </div>
+            <div class="sun-icon">☀️</div>
+        </div>
+
+        <!-- Asystent AI -->
+        <div class="ai-card">
+            <p class="ai-title">✨ Asystent AI</p>
+            <p class="ai-desc">W czym mogę pomóc? Wybierz kategorię:</p>
+            <div class="ai-tags">
+                <span class="ai-tag">Telefony 📱</span>
+                <span class="ai-tag">Zabawki 🧸</span>
+            </div>
+        </div>
+
+        <!-- Filtry -->
+        <div class="filter-bar">
+            <button class="filter-btn active">Wszystkie</button>
+            <button class="filter-btn">Telefony 📱</button>
+            <button class="filter-btn">Zabawki 🧸</button>
+        </div>
+
+        <!-- Lista produktów z akcentami Liquid Glass -->
+        <div class="products-list">
+            <div class="product-card">
+                <div class="product-info">
+                    <h3>iPhone 13 Liquid Glass</h3>
+                    <p>15 zł</p>
+                </div>
+                <button class="btn-add">Dodaj</button>
+            </div>
+
+            <div class="product-card">
+                <div class="product-info">
+                    <h3>iPhone 16 Plus Liquid Glass</h3>
+                    <p>15 zł</p>
+                </div>
+                <button class="btn-add">Dodaj</button>
+            </div>
+
+            <div class="product-card">
+                <div class="product-info">
+                    <h3>iPhone 17 Pro Max Liquid Glass</h3>
+                    <p>20 zł</p>
+                </div>
+                <button class="btn-add">Dodaj</button>
+            </div>
+
+            <div class="product-card">
+                <div class="product-info">
+                    <h3>iPhone 17 Pro Max Camera Bump</h3>
+                    <p>25 zł</p>
+                </div>
+                <button class="btn-add">Dodaj</button>
+            </div>
+
+            <div class="product-card">
+                <div class="product-info">
+                    <h3>iPhone 17 Pro Max Full Liquid Glass</h3>
+                    <p>30 zł</p>
+                </div>
+                <button class="btn-add">Dodaj</button>
+            </div>
+
+            <div class="product-card">
+                <div class="product-info">
+                    <h3>iPhone duo Liquid Glass</h3>
+                    <p>35 zł</p>
+                </div>
+                <button class="btn-add">Dodaj</button>
+            </div>
+
+            <div class="product-card">
+                <div class="product-info">
+                    <h3>iPhone duo camera bump</h3>
+                    <p>39 zł</p>
+                </div>
+                <button class="btn-add">Dodaj</button>
+            </div>
+
+            <div class="product-card">
+                <div class="product-info">
+                    <h3>Ultimate Fidget Toy 3in1 Liquid Glass</h3>
+                    <p>20 zł</p>
+                </div>
+                <button class="btn-add">Dodaj</button>
+            </div>
+
+            <div class="product-card">
+                <div class="product-info">
+                    <h3>Bączek powietrzny Air Spinner</h3>
+                    <p>10 zł</p>
+                </div>
+                <button class="btn-add">Dodaj</button>
+            </div>
+
+            <div class="product-card">
+                <div class="product-info">
+                    <h3>Kostka NeeDoh (pomarańczowa)</h3>
+                    <p>25 zł</p>
+                </div>
+                <button class="btn-add">Dodaj</button>
+            </div>
+
+            <div class="product-card">
+                <div class="product-info">
+                    <h3>Gniotek masło Liquid Glass (pomarańczowy)</h3>
+                    <p>26 zł</p>
+                </div>
+                <button class="btn-add">Dodaj</button>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
