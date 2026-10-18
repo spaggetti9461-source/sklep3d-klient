@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Print Studio - Liquid Glass Edition</title>
+    <style>
+        * { box-sizing: border-box; transition: background-color 0.3s, color 0.3s, border-color 0.3s; }
+        
+        /* Motyw Ciemny (domyślny) */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #0b0f19;
+            color: #f8fafc;
+            margin: 0;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .container {
+            width: 100%;
+            max-width: 480px;
+        }
+        
+        .header-card {
+            background: #111827;
+            padding: 16px;
+            border-radius: 20px;
+            border: 1px solid #1f2937;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 14px;
+        }
+        .header-info { display: flex; align-items: center; gap: 12px; }
+        
+        .logo-box {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+        .logo-box svg {
+            width: 26px;
+            height: 26px;
+            stroke: white;
+            fill: none;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .header-title h1 { margin: 0; font-size: 16px; color: #fff; font-weight: 700; }
+        .header-title p { margin: 2px 0 0; font-size: 12px; color: #9ca3af; }
+        .theme-btn { font-size: 20px; cursor: pointer; background: none; border: none; padding: 4px; }
+
+        .ai-card, .product-card, .cart-card {
+            background: #111827;
+            border: 1px solid #1f2937;
+        }
+
+        .ai-card { padding: 14px 16px; border-radius: 20px; margin-bottom: 14px; }
+        .ai-title { font-size: 13px; color: #60a5fa; margin: 0 0 4px 0; font-weight: 600; }
+        .ai-desc { font-size: 12px; color: #9ca3af; margin: 0 0 10px 0; }
+        .ai-tags { display: flex; gap: 8px; margin-bottom: 10px; }
+        .ai-tag {
+            background: #0b0f19;
+            border: 1px solid #374151;
+            padding: 6px 12px;
+            border-radius: 16px;
+            font-size: 12px;
+            color: #e5e7eb;
+            cursor: pointer;
+        }
+
+        .ai-chat-input-group { display: flex; gap: 8px; }
+        .ai-input, .promo-input, .customer-input {
+            flex: 1;
+            background: #0b0f19;
+            border: 1px solid #374151;
+            border-radius: 12px;
+            padding: 10px 12px;
+            color: #fff;
+            font-size: 13px;
+        }
+        .btn-ai-send {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 8px 14px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .ai-response {
+            margin-top: 10px;
+            font-size: 12px;
+            color: #38bdf8;
+            background: #0b0f19;
+            padding: 8px 12px;
+            border-radius: 10px;
+            border: 1px solid #1e293b;
+            display: none;
+        }
+
+        .filter-bar { display: flex; gap: 8px; margin-bottom: 14px; overflow-x: auto; padding-bottom: 4px; }
+        .filter-btn {
+            background: #111827;
+            border: 1px solid #1f2937;
+            color: #9ca3af;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        .filter-btn.active { background: #3b82f6; color: white; border-color: #3b82f6; }
+
+        .products-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 24px; }
+        .product-card {
+            padding: 16px 20px;
+            border-radius: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .product-info h3 { margin: 0 0 4px 0; font-size: 15px; color: #f3f4f6; font-weight: 600; }
+        .product-info p { margin: 0; font-size: 13px; color: #9ca3af; }
+        .btn-add {
+            background-color: #3b82f6;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            font-size: 13px;
+            font-weight: 600;
+            border-radius: 20px;
+            cursor: pointer;
+        }
+
+        .cart-card { padding: 20px; border-radius: 24px; margin-bottom: 30px; }
+        .cart-card h2 { margin: 0 0 16px 0; font-size: 18px; color: #fff; font-weight: 700; }
+        .cart-items { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+        .cart-empty-text { color: #6b7280; font-size: 14px; text-align: center; margin: 10px 0; }
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #0b0f19;
+            padding: 10px 14px;
+            border-radius: 12px;
+            font-size: 13px;
+        }
+        .cart-item-remove { color: #ef4444; background: none; border: none; cursor: pointer; font-weight: bold; margin-left: 10px; }
+
+        .promo-group { display: flex; gap: 8px; margin-bottom: 16px; }
+        .btn-promo { background: #1f2937; color: #fff; border: 1px solid #374151; border-radius: 12px; padding: 10px 16px; font-size: 13px; font-weight: 600; cursor: pointer; }
+        .cart-summary { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; font-weight: 700; font-size: 15px; }
+        .customer-input { width: 100%; margin-bottom: 16px; }
+        .btn-order { background-color: #22c55e; color: white; border: none; padding: 14px; font-size: 15px; font-weight: bold; border-radius: 14px; cursor: pointer; width: 100%; }
+        .btn-order:hover { background-color: #16a34a; }
+
+        /* Styl trybu jasnego */
+        body.light-mode {
+            background-color: #f3f4f6;
+            color: #111827;
+        }
+        body.light-mode .header-card,
+        body.light-mode .ai-card,
+        body.light-mode .product-card,
+        body.light-mode .cart-card {
+            background: #ffffff;
+            border-color: #e5e7eb;
+        }
+        body.light-mode .header-title h1,
+        body.light-mode .cart-card h2,
+        body.light-mode .product-info h3 {
+            color: #111827;
+        }
+        body.light-mode .header-title p,
+        body.light-mode .ai-desc,
+        body.light-mode .product-info p {
+            color: #6b7280;
+        }
+        body.light-mode .ai-tag,
+        body.light-mode .ai-input,
+        body.light-mode .promo-input,
+        body.light-mode .customer-input,
+        body.light-mode .cart-item {
+            background: #f9fafb;
+            color: #111827;
+            border-color: #d1d5db;
+        }
+        body.light-mode .filter-btn {
+            background: #ffffff;
+            border-color: #e5e7eb;
+            color: #4b5563;
+        }
+        body.light-mode .filter-btn.active {
+            background: #3b82f6;
+            color: white;
+            border-color: #3b82f6;
+        }
+        body.light-mode .ai-response {
+            background: #f0f9ff;
+            color: #0369a1;
+            border-color: #bae6fd;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- Nagłówek z działającym przełącznikiem motywu -->
+        <div class="header-card">
+            <div class="header-info">
+                <div class="logo-box">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                        <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+                        <line x1="12" y1="22.08" x2="12" y2="12"></line>
+                    </svg>
+                </div>
+                <div class="header-title">
+                    <h1>3D Print Studio</h1>
+                    <p>Wydruki 3D Liquid Glass Premium</p>
+                </div>
+            </div>
+            <button class="theme-btn" id="theme-toggle" onclick="toggleTheme()" title="Zmień motyw">☀️</button>
+        </div>
+
+        <!-- Asystent AI -->
+        <div class="ai-card">
+            <p class="ai-title">✨ Asystent AI</p>
+            <p class="ai-desc">W czym mogę pomóc? Wybierz kategorię lub wpisz pytanie:</p>
+            <div class="ai-tags">
+                <span class="ai-tag" onclick="aiFilter('telefony')">Telefony 📱</span>
+                <span class="ai-tag" onclick="aiFilter('zabawki')">Zabawki 🧸</span>
+            </div>
+            <div class="ai-chat-input-group">
+                <input type="text" class="ai-input" id="ai-query" placeholder="Zapytaj np. 'co masz na iPhone?'" onkeypress="handleKeyPress(event)">
+                <button class="btn-ai-send" onclick="askAI()">Zapytaj</button>
+            </div>
+            <div class="ai-response" id="ai-response"></div>
+        </div>
+
+        <!-- Filtry -->
+        <div class="filter-bar">
+            <button class="filter-btn active" id="filter-all" onclick="filterCategory('all')">Wszystkie</button>
+            <button class="filter-btn" id="filter-telefony" onclick="filterCategory('telefony')">Telefony 📱</button>
+            <button class="filter-btn" id="filter-zabawki" onclick="filterCategory('zabawki')">Zabawki 🧸</button>
+        </div>
+
+        <!-- Lista Produktów -->
+        <div class="products-list">
+            <div class="product-card" data-category="telefony">
+                <div class="product-info">
+                    <h3>iPhone 13</h3>
+                    <p>15 zł</p>
+                </div>
+                <button class="btn-add" onclick="addToCart('iPhone 13', 15)">Dodaj</button>
+            </div>
+
+            <div class="product-card" data-category="telefony">
+                <div class="product-info">
+                    <h3>iPhone 16 Plus</h3>
+                    <p>15 zł</p>
+                </div>
+                <button class="btn-add" onclick="addToCart('iPhone 16 Plus', 15)">Dodaj</button>
+            </div>
+
+            <div class="product-card" data-category="telefony">
+                <div class="product-info">
+                    <h3>iPhone 17 Pro Max</h3>
+                    <p>20 zł</p>
+                </div>
+                <button class="btn-add" onclick="addToCart('iPhone 17 Pro Max', 20)">Dodaj</button>
+            </div>
+
+            <div class="product-card" data-category="telefony">
+                <div class="product-info">
+                    <h3>iPhone 17 Pro Max Camera Bump</h3>
+                    <p>25 zł</p>
+                </div>
+                <button class="btn-add" onclick="addToCart('iPhone 17 Pro Max Camera Bump', 25)">Dodaj</button>
+            </div>
+
+            <div class="product-card" data-category="telefony">
+                <div class="product-info">
+                    <h3>iPhone 17 Pro Max Full</h3>
+                    <p>30 zł</p>
+                </div>
+                <button class="btn-add" onclick="addToCart('iPhone 17 Pro Max Full', 30)">Dodaj</button>
+            </div>
+
+            <div class="product-card" data-category="telefony">
+                <div class="product-info">
+                    <h3>iPhone duo</h3>
+                    <p>35 zł</p>
+                </div>
+                <button class="btn-add" onclick="addToCart('iPhone duo', 35)">Dodaj</button>
+            </div>
+
+            <div class="product-card" data-category="telefony">
+                <div class="product-info">
+                    <h3>iPhone duo camera bump</h3>
+                    <p>39 zł</p>
+                </div>
+                <button class="btn-add" onclick="addToCart('iPhone duo camera bump', 39)">Dodaj</button>
+            </div>
+
+            <div class="product-card" data-category="zabawki">
+                <div class="product-info">
+                    <h3>Ultimate Fidget Toy 3in1</h3>
+                    <p>20 zł</p>
+                </div>
+                <button class="btn-add" onclick="addToCart('Ultimate Fidget Toy 3in1', 20)">Dodaj</button>
+            </div>
+
+            <div class="product-card" data-category="zabawki">
+                <div class="product-info">
+                    <h3>Bączek powietrzny Air Spinner</h3>
+                    <p>10 zł</p>
+                </div>
+                <button class="btn-add" onclick="addToCart('Bączek powietrzny Air Spinner', 10)">Dodaj</button>
+            </div>
+
+            <div class="product-card" data-category="zabawki">
+                <div class="product-info">
+                    <h3>Kostka NeeDoh (pomarańczowa)</h3>
+                    <p>25 zł</p>
+                </div>
+                <button class="btn-add" onclick="addToCart('Kostka NeeDoh (pomarańczowa)', 25)">Dodaj</button>
+            </div>
+
+            <div class="product-card" data-category="zabawki">
+                <div class="product-info">
+                    <h3>Gniotek masło (pomarańczowy)</h3>
+                    <p>26 zł</p>
+                </div>
+                <button class="btn-add" onclick="addToCart('Gniotek masło (pomarańczowy)', 26)">Dodaj</button>
+            </div>
+        </div>
+
+        <!-- SEKCJA KOSZYKA -->
+        <div class="cart-card">
+            <h2>Twój Koszyk</h2>
+            <div class="cart-items" id="cart-items">
+                <p class="cart-empty-text">Koszyk jest pusty</p>
+            </div>
+
+            <div class="promo-group">
+                <input type="text" class="promo-input" id="promo-code" placeholder="Kod promocyjny">
+                <button class="btn-promo" onclick="applyPromo()">Zastosuj</button>
+            </div>
+
+            <div class="cart-summary">
+                <span>Razem:</span>
+                <span id="cart-total">0 zł</span>
+            </div>
+
+            <input type="text" class="customer-input" id="customer-info" placeholder="Twoje imię / nr telefonu / e-mail">
+
+            <button class="btn-order" onclick="submitOrder()">Złóż zamówienie</button>
+        </div>
+    </div>
+
+    <script>
+        var cart = [];
+        var discountPercent = 0;
+        var isFree = false;
+
+        // Przełączanie motywu Jasny / Ciemny
+        function toggleTheme() {
+            var body = document.body;
+            var themeBtn = document.getElementById('theme-toggle');
+            body.classList.toggle('light-mode');
+            
+            if (body.classList.contains('light-mode')) {
+                themeBtn.innerText = '🌙';
+            } else {
+                themeBtn.innerText = '☀️';
+            }
+        }
+
+        function addToCart(name, price) {
+            cart.push({ name: name, price: price });
+            updateCart();
+        }
+
+        function removeFromCart(index) {
+            cart.splice(index, 1);
+            updateCart();
+        }
+
+        function updateCart() {
+            var cartItemsContainer = document.getElementById('cart-items');
+            var cartTotalElement = document.getElementById('cart-total');
+
+            if (cart.length === 0) {
+                cartItemsContainer.innerHTML = '<p class="cart-empty-text">Koszyk jest pusty</p>';
+                cartTotalElement.innerText = '0 zł';
+                return;
+            }
+
+            var html = '';
+            var total = 0;
+
+            for (var i = 0; i < cart.length; i++) {
+                total += cart[i].price;
+                html += '<div class="cart-item">' +
+                            '<span>' + cart[i].name + ' (' + cart[i].price + ' zł)</span>' +
+                            '<button class="cart-item-remove" onclick="removeFromCart(' + i + ')">✕</button>' +
+                        '</div>';
+            }
+
+            if (isFree) {
+                total = 0;
+            } else if (discountPercent > 0) {
+                total = total * (1 - discountPercent / 100);
+            }
+
+            cartItemsContainer.innerHTML = html;
+            cartTotalElement.innerText = (Math.round(total * 100) / 100) + ' zł';
+        }
+
+        function applyPromo() {
+            var rawCode = document.getElementById('promo-code').value.trim();
+            var upperCode = rawCode.toUpperCase();
+
+            if (upperCode === 'ROSA3D') {
+                discountPercent = 4;
+                isFree = false;
+                alert('Zastosowano kod ROSA3D: 4% zniżki!');
+            } else if (rawCode === 'MaRCeLtEsT' || upperCode === 'MARCELTEST') {
+                isFree = true;
+                discountPercent = 0;
+                alert('Zastosowano kod MaRCeLtEsT: Zamówienie za 0 zł!');
+            } else if (rawCode === '') {
+                alert('Wpisz kod promocyjny.');
+            } else {
+                alert('Nieprawidłowy kod promocyjny.');
+            }
+            updateCart();
+        }
+
+        function submitOrder() {
+            var customerInfo = document.getElementById('customer-info').value.trim();
+            if (cart.length === 0) {
+                alert('Twój koszyk jest pusty!');
+                return;
+            }
+            if (!customerInfo) {
+                alert('Wpisz swoje imię, numer telefonu lub e-mail przed złożeniem zamówienia.');
+                return;
+            }
+
+            var total = document.getElementById('cart-total').innerText;
+            var productList = [];
+            for (var i = 0; i < cart.length; i++) {
+                productList.push(cart[i].name);
+            }
+
+            alert('Dziękujemy! Twoje zamówienie zostało złożone.\n\nProdukty: ' + productList.join(', ') + '\nRazem: ' + total + '\nDane: ' + customerInfo);
+            
+            cart = [];
+            discountPercent = 0;
+            isFree = false;
+            document.getElementById('customer-info').value = '';
+            document.getElementById('promo-code').value = '';
+            updateCart();
+        }
+
+        function filterCategory(category) {
+            var products = document.querySelectorAll('.product-card');
+            var filterBtns = document.querySelectorAll('.filter-btn');
+
+            for (var i = 0; i < filterBtns.length; i++) {
+                filterBtns[i].classList.remove('active');
+            }
+
+            if (category === 'all') {
+                document.getElementById('filter-all').classList.add('active');
+                for (var j = 0; j < products.length; j++) {
+                    products[j].style.display = 'flex';
+                }
+            } else if (category === 'telefony') {
+                document.getElementById('filter-telefony').classList.add('active');
+                for (var k = 0; k < products.length; k++) {
+                    products[k].style.display = products[k].getAttribute('data-category') === 'telefony' ? 'flex' : 'none';
+                }
+            } else if (category === 'zabawki') {
+                document.getElementById('filter-zabawki').classList.add('active');
+                for (var l = 0; l < products.length; l++) {
+                    products[l].style.display = products[l].getAttribute('data-category') === 'zabawki' ? 'flex' : 'none';
+                }
+            }
+        }
+
+        function aiFilter(category) {
+            filterCategory(category);
+            var respBox = document.getElementById('ai-response');
+            respBox.style.display = 'block';
+            respBox.innerText = '🤖 Asystent AI: Wyświetlam kategorię ' + (category === 'telefony' ? 'Telefony 📱' : 'Zabawki 🧸') + '.';
+        }
+
+        function handleKeyPress(e) {
+            if (e.key === 'Enter') {
+                askAI();
+            }
+        }
+
+        function askAI() {
+            var input = document.getElementById('ai-query').value.toLowerCase().trim();
+            var respBox = document.getElementById('ai-response');
+            
+            if (!input) return;
+
+            respBox.style.display = 'block';
+
+            if (input.indexOf('telefon') !== -1 || input.indexOf('iphone') !== -1) {
+                filterCategory('telefony');
+                respBox.innerText = "🤖 Asystent AI: Mamy szeroki wybór akcesoriów i modeli iPhone (od iPhone 13 po iPhone 17 Pro Max). Wyświetlam je poniżej!";
+            } else if (input.indexOf('zabaw') !== -1 || input.indexOf('gniotek') !== -1 || input.indexOf('bączek') !== -1 || input.indexOf('fidget') !== -1) {
+                filterCategory('zabawki');
+                respBox.innerText = "🤖 Asystent AI: Oto nasze zabawki i gadżety antystresowe! Polecam Bączek powietrzny Air Spinner (10 zł) oraz Kostkę NeeDoh!";
+            } else if (input.indexOf('najtańsz') !== -1 || input.indexOf('tani') !== -1) {
+                filterCategory('all');
+                respBox.innerText = "🤖 Asystent AI: Najtańszym produktem w sklepie jest Bączek powietrzny Air Spinner za jedyne 10 zł!";
+            } else if (input.indexOf('kod') !== -1 || input.indexOf('rabat') !== -1 || input.indexOf('zniżka') !== -1) {
+                respBox.innerText = "🤖 Asystent AI: Posiadasz kody rabatowe? Wpisz je w sekcji 'Twój Koszyk' u dołu strony!";
+            } else {
+                filterCategory('all');
+                respBox.innerText = "🤖 Asystent AI: Przeszukuję naszą ofertę... Poniżej znajdziesz pełną listę dostępnych wydruków 3D!";
+            }
+        }
+    </script>
+
+</body>
+</html>
